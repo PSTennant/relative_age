@@ -62,7 +62,7 @@ def relative_age_adjustment_linear(child_test_score, max_test_score, child_bday,
 
 relative_age_adjustment_linear(child_test_score, max_test_score, child_bday, oldest_in_cohort)
 
-# ================================= Complex Adjustment from Claude into Function ==============================
+# ================================= Complex Adjustment from Claude  ==============================
 
 def relative_age_adjustment_exp(child_test_score, max_test_score, child_bday, oldest_in_cohort, k=1, a=2):
     """
@@ -91,9 +91,37 @@ def relative_age_adjustment_exp(child_test_score, max_test_score, child_bday, ol
 
 relative_age_adjustment_exp(child_test_score, max_test_score, child_bday, oldest_in_cohort)
 
+# ========================================== Understand Exp Adjustment ================================================
+
+print('Relative age is:', f'{(test_date - child_bday)/(test_date - oldest_in_cohort)}.',
+     'On the test date, the child was this proportion as old as the oldest child')
+print('Adjustment factor is:', f'{1 / (1 + math.exp(-1 * (.74 - 0.5)))}')
+# Adjustment factor will be less than 1.
+print('Adjustment factor is when the age gap is quite small:', f'{1 / (1 + math.exp(-1 * (.99 - 0.5)))}')
+print('Adjustment factor is the age gap is quite large:', f'{1 / (1 + math.exp(-1 * (.01 - 0.5)))}')
+# So at k = 1, the adjustment ranges from .38 to .62
+
+# But what if we adjust k?
+print('Adjustment factor is when the age gap is quite small:', f'{1 / (1 + math.exp(-3 * (.99 - 0.5)))}')
+print('Adjustment factor is the age gap is quite large:', f'{1 / (1 + math.exp(-3 * (.01 - 0.5)))}')
+# So at these levels of k and a, the adjustment ranges from .38 to .62
+
+# and how does the adjustment factor play into the score multiplier? 
+print('Score multiplier is:', f'{(1 - math.exp(-2 * (child_test_score / .56) / max_test_score))}')
+print('Score multiplier is for smallest age gap:', f'{(1 - math.exp(-2 * (child_test_score / .81) / max_test_score))}')
+print('Score multiplier is for largest age gap:', f'{(1 - math.exp(-2 * (child_test_score / .187) / max_test_score))}')
+
+# And what if we adjust a? 
+print('Score multiplier is:', f'{(1 - math.exp(-2 * (child_test_score / .56) / max_test_score))}')
+print('Score multiplier is for smallest age gap:', f'{(1 - math.exp(-1.44 * (child_test_score / .81) / max_test_score))}')
+print('Score multiplier is for largest age gap:', f'{(1 - math.exp(-1.44 * (child_test_score / .187) / max_test_score))}')
+
+
+# So maybe k of 2 and a of 1.44? Is this just tuned to this exact birthday and test date combination? 
+
 # ========================================== Comparing Adjustments ================================================
 
-# Quick print version
+# Quick print version of different scores
 for i in range(100):
     print(i, 
           relative_age_adjustment_exp(i, max_test_score, child_bday, oldest_in_cohort),
