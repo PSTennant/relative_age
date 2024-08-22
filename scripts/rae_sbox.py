@@ -6,6 +6,7 @@ import math
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import itertools
 
 # ================================================== Inputs =======================================
 child_bday = date.fromisoformat("2021-07-18")
@@ -154,15 +155,17 @@ bdays = [date.fromisoformat("2020-09-01"), date.fromisoformat("2020-12-31"),
 # Initialize a DataFrame to store the results
 data = pd.DataFrame()
 # Calculate comp_list for each child_bday and store the results
-for child_bday in bdays:
-    lin_list = [relative_age_adjustment_linear(i, max_test_score, child_bday, 
-                oldest_in_cohort) for i in range(100)]
-    exp_list = [relative_age_adjustment_exp(i, max_test_score, child_bday, oldest_in_cohort) for i in range(100)]
-    df = pd.DataFrame({'score': range(100), 'lin_value': lin_list, 
-                       'exp_value': exp_list, 'Child_Bday': child_bday})
-    data = pd.concat([data, df], ignore_index=True)
+for a in [1,1.44,2,3]:
+    for k in [1,3,6,9]:
+        for child_bday in bdays:
+            lin_list = [relative_age_adjustment_linear(i, max_test_score, child_bday, oldest_in_cohort) for i in range(100)]
+            exp_list = [relative_age_adjustment_exp(i, max_test_score, child_bday, oldest_in_cohort, k = k, a = a) for i in range(100)]
+            df = pd.DataFrame({'score': range(100), 'lin_value': lin_list, 
+                            'exp_value': exp_list, 'Child_Bday': child_bday,
+                            'k': k, 'a': a})
+            data = pd.concat([data, df], ignore_index=True)
 # And reshaping to long form    
-data = data.melt(id_vars=['score', 'Child_Bday'], value_vars=['lin_value', 'exp_value'],
+data = data.melt(id_vars=['score', 'Child_Bday', 'k', 'a'], value_vars=['lin_value', 'exp_value'],
                  value_name="adjusted_score")
 
 # Plot the data
@@ -172,4 +175,9 @@ plt.title('Comparison of relative_age_adjustment across different Child_Bday val
 plt.xlabel('Original Score')
 plt.ylabel('Adjusted Score')
 plt.legend(title='Child Birthday and Adjustment Method')
-plt.savefig("out/comp_list_2D.png")
+plt.savefig("out/comp_list_4D.png")
+
+# Faceted plot
+g = sns.FacetGrid(data, col="k", row="a", hue="Child_Bday")
+g.map(sns.lineplot, 'score', 'adjusted_score')
+plt.savefig("out/comp_list_4D.png")
