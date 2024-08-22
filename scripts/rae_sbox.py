@@ -94,7 +94,7 @@ def relative_age_adjustment_exp(test_date, child_test_score, max_test_score, chi
 
 relative_age_adjustment_exp(test_date, child_test_score, max_test_score, child_bday, oldest_in_cohort)
 
-# ========================================== Understand Exp Adjustment ==========================================
+# ====================== Manual Exploration of Exp Adjustment ==========================================
 
 print('Relative age is:', f'{(test_date - child_bday)/(test_date - oldest_in_cohort)}.',
      'On the test date, the child was this proportion as old as the oldest child')
@@ -119,7 +119,6 @@ print('Score multiplier is:', f'{(1 - math.exp(-2 * (child_test_score / .56) / m
 print('Score multiplier is for smallest age gap:', f'{(1 - math.exp(-1.44 * (child_test_score / .81) / max_test_score))}')
 print('Score multiplier is for largest age gap:', f'{(1 - math.exp(-1.44 * (child_test_score / .187) / max_test_score))}')
 
-
 # So maybe k of 2 and a of 1.44? Is this just tuned to this exact birthday and test date combination? 
 
 # ========================================== Comparing Adjustments =====================================
@@ -143,8 +142,6 @@ for i in range(100):
 #     comp_list.append(relative_age_adjustment(i, max_test_score, child_bday, oldest_in_cohort))
 # Same thing as list comprehnsion
 comp_list = [relative_age_adjustment_exp(test_date, i, max_test_score, child_bday, oldest_in_cohort) for i in range(100)]
-
-
 plot = (ggplot(pl.DataFrame({'adj_score': comp_list}).with_row_index("og_score"), 
         aes('og_score', 'adj_score')) + 
     geom_line())
