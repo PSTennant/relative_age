@@ -6,7 +6,6 @@ import math
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-import itertools
 
 # ================================================== Inputs =======================================
 child_bday = date.fromisoformat("2021-07-18")
@@ -36,7 +35,7 @@ print(f"The inflation factor from a test date of {test_date} for a child born {c
 
 # ===================================== MVP into Linear Function ========================================
 
-def relative_age_adjustment_linear(child_test_score, max_test_score, child_bday, oldest_in_cohort):
+def relative_age_adjustment_linear(test_date, child_test_score, max_test_score, child_bday, oldest_in_cohort):
     """
     Adjusts a test score to account for the relative age effect using a linear function with hard capping.
     
@@ -61,11 +60,11 @@ def relative_age_adjustment_linear(child_test_score, max_test_score, child_bday,
         adjusted_score = max_test_score
     return adjusted_score
 
-relative_age_adjustment_linear(child_test_score, max_test_score, child_bday, oldest_in_cohort)
+relative_age_adjustment_linear(test_date, child_test_score, max_test_score, child_bday, oldest_in_cohort)
 
 # ================================= Complex Adjustment from Claude  ==============================
 
-def relative_age_adjustment_exp(child_test_score, max_test_score, child_bday, oldest_in_cohort, k=1, a=2):
+def relative_age_adjustment_exp(test_date, child_test_score, max_test_score, child_bday, oldest_in_cohort, k=1, a=2):
     """
     Adjusts a test score to account for the relative age effect using a logistic function with soft capping.
     
@@ -92,7 +91,7 @@ def relative_age_adjustment_exp(child_test_score, max_test_score, child_bday, ol
 
 relative_age_adjustment_exp(child_test_score, max_test_score, child_bday, oldest_in_cohort)
 
-# ========================================== Understand Exp Adjustment ================================================
+# ========================================== Understand Exp Adjustment ==========================================
 
 print('Relative age is:', f'{(test_date - child_bday)/(test_date - oldest_in_cohort)}.',
      'On the test date, the child was this proportion as old as the oldest child')
@@ -120,7 +119,14 @@ print('Score multiplier is for largest age gap:', f'{(1 - math.exp(-1.44 * (chil
 
 # So maybe k of 2 and a of 1.44? Is this just tuned to this exact birthday and test date combination? 
 
-# ========================================== Comparing Adjustments ================================================
+# ========================================== Comparing Adjustments =====================================
+
+# Realistic pressure testing
+# Small age gap, big score difference
+relative_age_adjustment_linear(test_date=date.fromisoformat("2024-01-15"), child_bday=date.fromisoformat("2022-09-15"), child_test_score=55, max_test_score=100, oldest_in_cohort=date.fromisoformat("2022-09-01"))
+# large age gap, big score difference
+relative_age_adjustment_linear(test_date=date.fromisoformat("2024-01-15"), child_bday=date.fromisoformat("2021-08-30"), child_test_score=55, max_test_score=100, oldest_in_cohort=date.fromisoformat("2020-09-01"))
+
 
 # Quick print version of different scores
 for i in range(100):
