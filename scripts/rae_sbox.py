@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from plotnine import ggplot, aes, geom_line, facet_grid, theme_minimal, scale_color_discrete, scale_linetype_discrete, labs
+import polars as pl
 
 
 # ================================================== Inputs =======================================
@@ -91,7 +92,7 @@ def relative_age_adjustment_exp(test_date, child_test_score, max_test_score, chi
     adjusted_score = round(adjusted_score)
     return adjusted_score
 
-relative_age_adjustment_exp(child_test_score, max_test_score, child_bday, oldest_in_cohort)
+relative_age_adjustment_exp(test_date, child_test_score, max_test_score, child_bday, oldest_in_cohort)
 
 # ========================================== Understand Exp Adjustment ==========================================
 
@@ -141,7 +142,12 @@ for i in range(100):
 # for i in range(100):
 #     comp_list.append(relative_age_adjustment(i, max_test_score, child_bday, oldest_in_cohort))
 # Same thing as list comprehnsion
-comp_list = [relative_age_adjustment_exp(i, max_test_score, child_bday, oldest_in_cohort) for i in range(100)]
+comp_list = [relative_age_adjustment_exp(test_date, i, max_test_score, child_bday, oldest_in_cohort) for i in range(100)]
+
+
+plot = (ggplot(pl.DataFrame({'adj_score': comp_list}).with_row_index("og_score"), 
+        aes('og_score', 'adj_score')) + 
+    geom_line())
 
 # Line Plot
 plt.figure(figsize=(10, 6))
@@ -149,7 +155,7 @@ sns.lineplot(x=range(len(comp_list)), y=comp_list)
 plt.title('Line Plot of comp_list')
 plt.xlabel('Original Score')
 plt.ylabel('Adjusted Score')
-# plt.show()
+plt.show()
 plt.savefig("out/comp_list_linefig.png")
 
 
@@ -166,7 +172,7 @@ testdays = [date.fromisoformat("2023-01-01"), date.fromisoformat("2024-01-01"),
 # Initialize a DataFrame to store the results
 data = pd.DataFrame()
 # Looping over k against different birth and test dates
-for k in [.1, 1, 2, 3, 5]:
+for k in [1, 5, 10]:
     for testday in testdays:
         for child_bday in bdays:
             lin_list = [relative_age_adjustment_linear(child_test_score = i, test_date=testday, max_test_score=max_test_score, child_bday=child_bday, oldest_in_cohort=oldest_in_cohort) for i in range(100)]
@@ -180,44 +186,14 @@ for k in [.1, 1, 2, 3, 5]:
 data = data.melt(id_vars=['score', 'Child_Bday', 'test_date','k'], var_name='adj_method',
                  value_vars=['lin_value', 'exp_value'], value_name="adjusted_score")
 
-# Plot the data
-plt.figure(figsize=(12, 8))
-sns.lineplot(x='score', y='adjusted_score', hue='Child_Bday', style='variable', data=data, palette='tab10')
-plt.title('Comparison of relative_age_adjustment across different Child_Bday values')
-plt.xlabel('Original Score')
-plt.ylabel('Adjusted Score')
-plt.legend(title='Child Birthday and Adjustment Method')
-plt.savefig("out/comp_list_4D.png")
-
-# Faceted plot
-g = sns.FacetGrid(data, col="k", row="a", hue="Child_Bday")
-g.map(sns.lineplot, 'score', 'adjusted_score')
-plt.savefig("out/comp_list_4D.png")
-
 # # Create the plot
-# ggplot(data, aes(x='score', y='adjusted_score', color='Child_Bday', linetype='adj_method')) +
-#     geom_line()
-#      +
-#     facet_grid('k ~ test_date') #+
-#     # scale_color_discrete(name="Child_Bday") +
-#     # scale_linetype_discrete(name="Adjustment Type") +
-#     # labs(
-#     #     title="Faceted Line Graph",
-#     #     x="Test Date",
-#     #     y="Value"
-#     # ) +
-#     # theme_minimal()
-# )
-# print(plot)
-
-
-
-# from plotnine import ggplot, geom_point, aes, stat_smooth, facet_wrap
-# from plotnine.data import mtcars
-
-# (
-#     ggplot(mtcars, aes("wt", "mpg", color="factor(gear)"))
-#     + geom_point()
-#     + stat_smooth(method="lm")
-#     + facet_wrap("gear")
-# )
+# plot = (ggplot(data, aes(x='score', y='adjusted_score', color='Child_Bday', linetype='adj_method')) + 
+#     geom_line() +
+#     facet_grid('k ~ test_date') +
+#     scale_color_discrete(name="Child_Bday") +
+#     scale_linetype_discrete(name="Adjustment Type") +
+#     labs(
+#         title="Faceted Line Graph",
+#         x="Test Date",
+#         y="Value") +
+#     theme_minimal())
