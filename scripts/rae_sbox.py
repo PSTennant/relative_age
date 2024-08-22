@@ -133,8 +133,8 @@ relative_age_adjustment_linear(test_date=date.fromisoformat("2024-01-15"), child
 # Quick print version of different scores
 for i in range(100):
     print(i, 
-          relative_age_adjustment_exp(i, max_test_score, child_bday, oldest_in_cohort),
-          relative_age_adjustment_linear(i, max_test_score, child_bday, oldest_in_cohort))
+          relative_age_adjustment_exp(child_test_score=i, max_test_score=max_test_score, child_bday=child_bday, oldest_in_cohort=oldest_in_cohort, test_date=test_date),
+          relative_age_adjustment_linear(child_test_score=i, max_test_score=max_test_score, child_bday=child_bday, oldest_in_cohort=oldest_in_cohort, test_date=test_date))
 
 # # Making it into a list
 # comp_list = []
@@ -145,16 +145,6 @@ comp_list = [relative_age_adjustment_exp(test_date, i, max_test_score, child_bda
 plot = (ggplot(pl.DataFrame({'adj_score': comp_list}).with_row_index("og_score"), 
         aes('og_score', 'adj_score')) + 
     geom_line())
-
-# Line Plot
-plt.figure(figsize=(10, 6))
-sns.lineplot(x=range(len(comp_list)), y=comp_list)
-plt.title('Line Plot of comp_list')
-plt.xlabel('Original Score')
-plt.ylabel('Adjusted Score')
-plt.show()
-plt.savefig("out/comp_list_linefig.png")
-
 
 # **** Multi-Dimensional Version ****
 
@@ -183,14 +173,16 @@ for k in [1, 5, 10]:
 data = data.melt(id_vars=['score', 'Child_Bday', 'test_date','k'], var_name='adj_method',
                  value_vars=['lin_value', 'exp_value'], value_name="adjusted_score")
 
-# # Create the plot
-# plot = (ggplot(data, aes(x='score', y='adjusted_score', color='Child_Bday', linetype='adj_method')) + 
-#     geom_line() +
-#     facet_grid('k ~ test_date') +
-#     scale_color_discrete(name="Child_Bday") +
-#     scale_linetype_discrete(name="Adjustment Type") +
-#     labs(
-#         title="Faceted Line Graph",
-#         x="Test Date",
-#         y="Value") +
-#     theme_minimal())
+# Create the plot
+plot = (ggplot(data, aes(x='score', y='adjusted_score', color='Child_Bday', linetype='adj_method')) + 
+    geom_line() +
+    facet_grid('k ~ test_date') +
+    scale_color_discrete(name="Child_Bday") +
+    scale_linetype_discrete(name="Adjustment Type") +
+    labs(
+        title="Faceted Line Graph",
+        x="Test Date",
+        y="Value") +
+    theme_minimal())
+
+

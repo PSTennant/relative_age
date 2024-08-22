@@ -22,3 +22,35 @@ To address this issue, we need age-adjusted test scores. This approach would con
 Implementing age-adjusted scoring could significantly improve educational equity. It would level the playing field, ensuring younger students aren't unfairly disadvantaged and older students are appropriately challenged. It could also lead to more effective teaching strategies, tailored to students' actual developmental needs rather than their relative age in class.
 
 This analysis will explore current research on RAE in academic testing, examine existing age adjustment methods, and propose a framework for implementing age-adjusted test scores. Our goal is to contribute to creating fairer and more accurate assessment practices in education, supporting the success of all students, regardless of their birth month.
+
+The `relative_age_adjustment_linear` function adjusts a test score to account for the relative age effect, which can impact the performance of younger students compared to their older peers within the same cohort. The method uses a linear adjustment with hard capping to ensure that the adjusted score remains within the valid range.
+
+### Required Inputs:
+1. **test_date (date)**: The date when the test or assessment was conducted.
+2. **child_test_score (float)**: The original score of the child on the test.
+3. **max_test_score (float)**: The maximum possible score on the test.
+4. **child_bday (date)**: The birthdate of the child whose score is being adjusted.
+5. **oldest_in_cohort (date)**: The birthdate of the oldest student in the cohort.
+
+### Adjustments Made:
+1. **Calculate Time Differences**:
+   - `oldest_delta`: The number of days between the test date and the birthdate of the oldest student.
+   - `child_delta`: The number of days between the test date and the birthdate of the child whose score is being adjusted.
+2. **Compute Inflation Factor**:
+   - `inflation_factor`: The ratio of `oldest_delta.days` to `child_delta.days`, representing the relative age difference.
+3. **Adjust Score**:
+   - Multiply the child's original test score by the `inflation_factor` to get the adjusted score.
+   - Round the adjusted score to the nearest integer.
+4. **Cap Score**:
+   - If the adjusted score exceeds the maximum possible score (`max_test_score`), cap it at `max_test_score`.
+
+### Expected Output:
+- **float**: The adjusted test score, which is rounded and capped within the valid score range.
+
+### Edge Cases and Inaccuracies:
+1. **Division by Zero**: If `child_delta.days` is zero (i.e., the test date is the same as the child's birthday), this will cause a division by zero error.
+2. **Negative Scores**: If the adjusted score calculation results in a negative value, the function does not handle this explicitly.
+3. **Over-Adjustment**: The linear adjustment may not accurately reflect the true impact of relative age, particularly in cases where the age difference is large.
+4. **Rounding**: Rounding to the nearest integer can introduce minor inaccuracies, especially for scores that are close to the rounding threshold.
+
+By considering these edge cases and potential inaccuracies, users can better understand the limitations and appropriate use of the `relative_age_adjustment_linear` function.
