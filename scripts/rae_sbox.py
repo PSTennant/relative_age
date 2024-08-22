@@ -6,6 +6,8 @@ import math
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+from plotnine import ggplot, aes, geom_line, facet_grid, theme_minimal, scale_color_discrete, scale_linetype_discrete, labs
+
 
 # ================================================== Inputs =======================================
 child_bday = date.fromisoformat("2021-07-18")
@@ -158,21 +160,25 @@ plt.savefig("out/comp_list_linefig.png")
 bdays = [date.fromisoformat("2020-09-01"), date.fromisoformat("2020-12-31"), 
          date.fromisoformat("2021-03-31"), date.fromisoformat("2021-07-18"), 
          date.fromisoformat("2021-08-30")]
+testdays = [date.fromisoformat("2023-01-01"), date.fromisoformat("2024-01-01"), 
+            date.fromisoformat("2025-01-01"), date.fromisoformat("2026-01-01"), 
+            date.fromisoformat("2027-01-01")]
 # Initialize a DataFrame to store the results
 data = pd.DataFrame()
-# Calculate comp_list for each child_bday and store the results
-for a in [1,1.44,2,3]:
-    for k in [1,3,6,9]:
+# Looping over k against different birth and test dates
+for k in [.1, 1, 2, 3, 5]:
+    for testday in testdays:
         for child_bday in bdays:
-            lin_list = [relative_age_adjustment_linear(i, max_test_score, child_bday, oldest_in_cohort) for i in range(100)]
-            exp_list = [relative_age_adjustment_exp(i, max_test_score, child_bday, oldest_in_cohort, k = k, a = a) for i in range(100)]
+            lin_list = [relative_age_adjustment_linear(child_test_score = i, test_date=testday, max_test_score=max_test_score, child_bday=child_bday, oldest_in_cohort=oldest_in_cohort) for i in range(100)]
+            exp_list = [relative_age_adjustment_exp(child_test_score = i, test_date=testday, max_test_score=max_test_score, child_bday=child_bday, oldest_in_cohort=oldest_in_cohort, 
+            k = k) for i in range(100)]
             df = pd.DataFrame({'score': range(100), 'lin_value': lin_list, 
-                            'exp_value': exp_list, 'Child_Bday': child_bday,
-                            'k': k, 'a': a})
+                            'exp_value': exp_list, 'Child_Bday': child_bday, 'test_date': testday,
+                            'k': k})
             data = pd.concat([data, df], ignore_index=True)
 # And reshaping to long form    
-data = data.melt(id_vars=['score', 'Child_Bday', 'k', 'a'], value_vars=['lin_value', 'exp_value'],
-                 value_name="adjusted_score")
+data = data.melt(id_vars=['score', 'Child_Bday', 'test_date','k'], var_name='adj_method',
+                 value_vars=['lin_value', 'exp_value'], value_name="adjusted_score")
 
 # Plot the data
 plt.figure(figsize=(12, 8))
@@ -187,3 +193,31 @@ plt.savefig("out/comp_list_4D.png")
 g = sns.FacetGrid(data, col="k", row="a", hue="Child_Bday")
 g.map(sns.lineplot, 'score', 'adjusted_score')
 plt.savefig("out/comp_list_4D.png")
+
+# # Create the plot
+# ggplot(data, aes(x='score', y='adjusted_score', color='Child_Bday', linetype='adj_method')) +
+#     geom_line()
+#      +
+#     facet_grid('k ~ test_date') #+
+#     # scale_color_discrete(name="Child_Bday") +
+#     # scale_linetype_discrete(name="Adjustment Type") +
+#     # labs(
+#     #     title="Faceted Line Graph",
+#     #     x="Test Date",
+#     #     y="Value"
+#     # ) +
+#     # theme_minimal()
+# )
+# print(plot)
+
+
+
+# from plotnine import ggplot, geom_point, aes, stat_smooth, facet_wrap
+# from plotnine.data import mtcars
+
+# (
+#     ggplot(mtcars, aes("wt", "mpg", color="factor(gear)"))
+#     + geom_point()
+#     + stat_smooth(method="lm")
+#     + facet_wrap("gear")
+# )
