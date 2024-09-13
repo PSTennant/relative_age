@@ -31,6 +31,9 @@ def relative_age_adjustment_linear(test_date, child_bday, oldest_in_cohort, chil
 
 # ========================================== User Interface ================================================
 
+# Page Title
+ui.panel_title("Relative Age Effect Adjustment Protoype", "RAE Adjustment")
+
 # Date Inputs
 ui.input_date("test_date", "Date of Assessment")
 ui.input_date("child_bday", "Birthdate of Child", value = date.today()-timedelta(days=365))
