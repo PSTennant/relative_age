@@ -2,6 +2,8 @@
 from shiny.express import input, render, ui
 from shinyswatch import theme
 from datetime import date, timedelta
+import pandas as pd
+import plotnine as p9
 
 # ========================================== RAE Adjusment Function ================================================
 
@@ -151,4 +153,17 @@ with ui.navset_pill(id="tab"):
             if input.test_date() is None or input.child_bday() is None or input.oldest_bday() is None or input.child_score() is None or input.max_score() is None:
                 return "Please fill out all fields to see your child's adjusted score."
             return f"Your child's age adjusted score: {relative_age_adjustment_linear(input.test_date(), input.child_bday(), input.oldest_bday(), input.child_score(), input.max_score())}"
+
+        @render.plot
+        def my_plot():
+            # Create a DataFrame from val1 and val2
+            data = pd.DataFrame({
+                'x': [input.inflation_factor],
+                'y': [input.adjusted_score]
+            })
+            plot = (
+                p9.ggplot(data, p9.aes('x', 'y')) +
+                p9.geom_point()
+            )
+            return plot
 
