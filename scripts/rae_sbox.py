@@ -9,6 +9,8 @@ import pandas as pd
 from plotnine import ggplot, aes, geom_line, facet_grid, theme_minimal, scale_color_discrete, scale_linetype_discrete, labs
 import polars as pl
 
+# IDEA! Maybe the student should get back a percentage of points they did not get
+
 
 # ================================================== Inputs =======================================
 child_bday = date.fromisoformat("2021-07-18")

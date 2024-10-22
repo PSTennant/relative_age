@@ -154,16 +154,38 @@ with ui.navset_pill(id="tab"):
                 return "Please fill out all fields to see your child's adjusted score."
             return f"Your child's age adjusted score: {relative_age_adjustment_linear(input.test_date(), input.child_bday(), input.oldest_bday(), input.child_score(), input.max_score())}"
 
+
         @render.plot
         def my_plot():
-            # Create a DataFrame from val1 and val2
+            # Calculate the adjusted score once
+            test_date = input.test_date()
+            child_bday = input.child_bday()
+            oldest_bday = input.oldest_bday()
+            child_score = input.child_score()
+            max_score = input.max_score()
+            # Make sure all 5 inputs are available before calculating the adjusted score
+            if None in [test_date, child_bday, oldest_bday, child_score, max_score]:
+                return None  # Return nothing if inputs are missing
+            # Calculate the adjusted score
+            adjusted_score = relative_age_adjustment_linear(test_date, child_bday, oldest_bday, child_score, max_score)
+            # Prepare the data for stacked bar plot
             data = pd.DataFrame({
-                'x': [input.inflation_factor],
-                'y': [input.adjusted_score]
+                'Category': pd.Categorical(['RAE Score Adjustment', 'Original Score'],
+                                            categories=['RAE Score Adjustment', 'Original Score'], 
+                                            ordered=True),
+                'Score': [adjusted_score - child_score, child_score]  # Adjusted minus original for the top part
             })
+            # Create the stacked bar plot
             plot = (
-                p9.ggplot(data, p9.aes('x', 'y')) +
-                p9.geom_point()
+                p9.ggplot(data, p9.aes(x='1', y='Score', fill='Category')) +  # '1' is used as a dummy x-axis value
+                p9.geom_bar(stat='identity', position='stack') +
+                p9.scale_fill_manual(values=['#b3510b', '#5c76c4']) +  # Define colors for the bars
+                p9.labs(title="Original vs RAE Adjusted Score",
+                        x="",
+                        y="Score") +
+                p9.ylim(0, max_score) +  # Set y-axis limit to max possible score
+                p9.theme_minimal() +
+                p9.theme(axis_text_x=p9.element_blank(), axis_ticks_major_x=p9.element_blank())  # Hide x-axis labels
             )
             return plot
 
