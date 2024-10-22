@@ -6,3 +6,4 @@ pandas
 ridgeplot
 datetime
 shinyswatch
+plotnine
