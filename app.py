@@ -45,8 +45,8 @@ with ui.sidebar():
 
     # Date Inputs
     ui.input_date("test_date", "Date of Assessment")
-    ui.input_date("child_bday", "Birthdate of Child", value = date.today()-timedelta(days=365))
-    ui.input_date("oldest_bday", "Birthdate of the Oldest Child in Cohort", value = date.today()-timedelta(days=366))
+    ui.input_date("child_bday", "Birthdate of Child", value = date.today()-timedelta(days=730))
+    ui.input_date("oldest_bday", "Birthdate of the Oldest Child in Cohort", value = date.today()-timedelta(days=1000))
 
     # Score Inputs
     ui.input_numeric("child_score", "Assessment Score of Child", value = None, min = 0, max = 100)
@@ -116,46 +116,48 @@ with ui.navset_pill(id="tab"):
         """)
 
     with ui.nav_panel("Results"):
-        @render.text
-        def child_name_val():
-            return f"Child's Name: {input.child_name()}"
-
-        @render.text
-        def test_date_val():
-            return f"Test Date: {input.test_date()}"
-
-        @render.text
-        def child_bday_val():
-            return f"Child Birthdate: {input.child_bday()}"
-
-        @render.text
-        def oldest_bday_val():
-            return f"Oldest in Cohort Birthdate: {input.oldest_bday()}"
-
-        @render.text
-        def child_score_val():
-            return f"Child Assessment Score: {input.child_score()}"
-
-        @render.text
-        def max_score_val():
-            return f"Maximum Possible Assessment Score: {input.max_score()}"
+        
+        # Add CSS for spacing
+        ui.HTML("""
+        <style>
+            .section { margin-top: 20px; }
+            .plot-container { width: 100%; max-width: 600px; margin: 0 auto; }
+        </style>
+        """)
+        
+        # Header for age comparison
+        ui.HTML("<h4 class='section'>Age Comparison</h3>")
 
         @render.text
         def age_comparison_val():
             child_age_on_testdate = input.test_date() - input.child_bday()
             oldest_age_on_testdate = input.test_date() - input.oldest_bday()
-            age_ratio = oldest_age_on_testdate.days/child_age_on_testdate.days
-            percent_older = (age_ratio - 1)*100
-            return f"\nOn the test date, the oldest child was {percent_older:.0f}% older than your child."
+            age_ratio = oldest_age_on_testdate.days / child_age_on_testdate.days
+            percent_older = (age_ratio - 1) * 100
+            if input.child_name() == "":
+                return f"On the test date, the oldest child was {percent_older:.0f}% older than your child."
+            if input.child_name() is not None:
+                return f"On the test date, the oldest child was {percent_older:.0f}% older than {input.child_name()}."
+
+        # Header for adjusted score
+        ui.HTML("<h4 class='section'>Adjusted Score</h3>")
 
         @render.text
         def adjusted_score_val():
             if input.test_date() is None or input.child_bday() is None or input.oldest_bday() is None or input.child_score() is None or input.max_score() is None:
-                return "Please fill out all fields to see your child's adjusted score."
-            return f"Your child's age adjusted score: {relative_age_adjustment_linear(input.test_date(), input.child_bday(), input.oldest_bday(), input.child_score(), input.max_score())}"
+                if input.child_name() == "":
+                    return "Please fill out all input fields to see your child's adjusted score."
+                if input.child_name() is not None:
+                    return f"Please fill out all input fields to see {input.child_name()}'s adjusted score."
+            if input.child_name() == "":
+                return f"Your child's age adjusted score: {relative_age_adjustment_linear(input.test_date(), input.child_bday(), input.oldest_bday(), input.child_score(), input.max_score())}"
+            if input.child_name() is not None:
+                return f"{input.child_name()}'s age adjusted score: {relative_age_adjustment_linear(input.test_date(), input.child_bday(), input.oldest_bday(), input.child_score(), input.max_score())}"
+        
+        # Header for the plot
+        ui.HTML("<h4 class='section'>Score Visualization</h3>")
 
-
-        @render.plot
+        @render.plot(width=800)
         def my_plot():
             # Calculate the adjusted score once
             test_date = input.test_date()
@@ -177,15 +179,19 @@ with ui.navset_pill(id="tab"):
             })
             # Create the stacked bar plot
             plot = (
-                p9.ggplot(data, p9.aes(x='1', y='Score', fill='Category')) +  # '1' is used as a dummy x-axis value
+                p9.ggplot(data, p9.aes(x='1', y='Score', fill='Category')) +
                 p9.geom_bar(stat='identity', position='stack') +
-                p9.scale_fill_manual(values=['#b3510b', '#5c76c4']) +  # Define colors for the bars
-                p9.labs(title="Original vs RAE Adjusted Score",
+                p9.scale_fill_manual(values=['#0ecbff', '#0d3958']) +
+                p9.labs(title="Original and RAE Adjusted Score",
                         x="",
                         y="Score") +
-                p9.ylim(0, max_score) +  # Set y-axis limit to max possible score
+                p9.ylim(0, max_score) +
                 p9.theme_minimal() +
-                p9.theme(axis_text_x=p9.element_blank(), axis_ticks_major_x=p9.element_blank())  # Hide x-axis labels
+                p9.theme(
+                    axis_text_x=p9.element_blank(),
+                    axis_ticks_major_x=p9.element_blank(),
+                    plot_title=p9.element_text(size=14, weight='bold'),
+                    legend_title=p9.element_text(size=12),
+                    legend_position='right')
             )
             return plot
-
