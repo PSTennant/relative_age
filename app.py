@@ -135,9 +135,9 @@ with ui.navset_pill(id="tab"):
             age_ratio = oldest_age_on_testdate.days / child_age_on_testdate.days
             percent_older = (age_ratio - 1) * 100
             if input.child_name() == "":
-                return f"On the test date, the oldest child was {percent_older:.0f}% older than your child."
+                return f"On the test date, the oldest child in the cohort was {percent_older:.0f}% older than your child."
             if input.child_name() is not None:
-                return f"On the test date, the oldest child was {percent_older:.0f}% older than {input.child_name()}."
+                return f"On the test date, the oldest child in the cohort was {percent_older:.0f}% older than {input.child_name()}."
 
         # Header for adjusted score
         ui.HTML("<h4 class='section'>Adjusted Score</h3>")
@@ -180,18 +180,20 @@ with ui.navset_pill(id="tab"):
             # Create the stacked bar plot
             plot = (
                 p9.ggplot(data, p9.aes(x='1', y='Score', fill='Category')) +
-                p9.geom_bar(stat='identity', position='stack') +
+                p9.geom_bar(stat='identity', position='stack', width=0.5) +
                 p9.scale_fill_manual(values=['#0ecbff', '#0d3958']) +
                 p9.labs(title="Original and RAE Adjusted Score",
                         x="",
                         y="Score") +
                 p9.ylim(0, max_score) +
-                p9.theme_minimal() +
+                p9.scale_x_continuous(limits=(0, 2)) + 
+                p9.theme_classic() +
                 p9.theme(
                     axis_text_x=p9.element_blank(),
                     axis_ticks_major_x=p9.element_blank(),
                     plot_title=p9.element_text(size=14, weight='bold'),
-                    legend_title=p9.element_text(size=12),
+                    legend_title=p9.element_text(size=12, family="Arial"),
+                    text=p9.element_text(size=12, family="Arial"),
                     legend_position='right')
             )
             return plot
