@@ -34,7 +34,7 @@ def relative_age_adjustment_linear(test_date, child_bday, oldest_in_cohort, chil
 
 # ========================================== User Interface ================================================
 
-ui.page_opts(title="Relative Age Effect Adjustment)",theme=theme.spacelab)
+ui.page_opts(title="Relative Age Effect Adjustment",theme=theme.spacelab)
 
 with ui.sidebar():
     # Page Title
