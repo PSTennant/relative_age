@@ -34,7 +34,7 @@ def relative_age_adjustment_linear(test_date, child_bday, oldest_in_cohort, chil
 
 # ========================================== User Interface ================================================
 
-ui.page_opts(title="Relative Age Effect Adjustment (Prototype)",theme=theme.spacelab)
+ui.page_opts(title="Relative Age Effect Adjustment)",theme=theme.spacelab)
 
 with ui.sidebar():
     # Page Title
@@ -58,61 +58,49 @@ with ui.navset_pill(id="tab"):
         The Relative Age Effect (RAE) is a phenomenon whereby older children in a given age cohort (e.g., those born earlier in a school year) tend to outperform their younger classmates in the same cohort. This effect, first noticed in sports, is now recognized as a significant factor in education.
         <br>
         <br>
-        Most school systems group children by birth year or academic year. This creates age gaps within a single grade — the oldest children in a cohort can be nearly a year older than the youngest in their cohort. For young children, this age difference can significantly impact their development and performance. The oldest children in a given cohort often score higher on assessments and tests, are more likely to be labeled as gifted, and less likely to be diagnosed with learning disabilities. This advantage is most noticeable in young children, but the gap can persist throughout a student's education and life, particularly if children are set into academic tracks (e.g., a gifted and talented track) based on their assessment scores during early childhood. 
+        Most school systems group children by birth year or academic year. This creates age gaps within a single grade — the oldest children in a cohort can be nearly a year older than the youngest in their cohort – that can significantly impact their development and performance. The oldest children in a given cohort often score higher on assessments and tests, are more likely to be labeled as gifted, and less likely to be diagnosed with learning disabilities. This advantage is most noticeable in young children, but the effects of this gap can persist throughout a student's education and life, particularly if children are set into academic tracks (e.g., a gifted and talented track) based on their assessment scores during early childhood. 
         <br>
         <br>
         <b>Several factors contribute to RAE:</b>
         <br>
         <ul>
-            <li>Older students may be more cognitively and physically developed.</li>
-            <li>They might be more emotionally mature.</li>
-            <li>They've had more time to learn and experience the world.</li>
+            <li>Older students may be more cognitively, physically, and emotionally developed.</li>           <li>They've had more time to learn and experience the world.</li>
             <li>Teachers might have higher expectations for older students.</li>
             <li>Early successes can boost confidence and motivation.</li>
         </ul>
-        While RAE's impact lessens over time (as a single year of age differences becomes a smaller proportional difference in the age of individuals in the same cohort), its early influence can affect a student's self-image, educational choices and opportunities, and even career path. This long-term effect highlights the need for a more nuanced approach to academic assessment, especially in early education. Current standardized tests don't account for these age differences within grades. This oversight can lead to younger students being unfairly labeled as underperforming, while older students may be overestimated. To address this issue, we need age-adjust test scores. This approach would consider a student's exact age when testing, allowing for fairer comparisons within a cohort. By adjusting scores based on relative age, educators can make better decisions about student placement, support, and interventions. Implementing age-adjusted scoring would level the playing field, ensuring younger students aren't unfairly disadvantaged and older students are appropriately challenged. It could also lead to more effective teaching strategies, tailored to students' actual developmental needs rather than their relative age in their cohort.
+        While RAE's impact lessens over time (as a single year of age differences becomes a smaller proportional difference in the age of individuals in the same cohort), its early influence can affect a student's self-image, educational choices and opportunities, and even career path. This long-term effect highlights the need for a more nuanced approach to academic assessment, especially in early education. Current standardized tests don't account for these age differences within grades. This oversight can lead to younger students being unfairly labeled as underperforming, while older students may be overestimated. To address this issue, we need age-adjust test and assessment scores. This approach would consider a student's exact age when testing, allowing for fairer comparisons within a cohort. By adjusting scores based on relative age, educators can make better decisions about student placement, support, and interventions. Implementing age-adjusted scoring would level the playing field, ensuring younger students aren't unfairly disadvantaged and older students are appropriately challenged. It could also lead to more effective teaching strategies, tailored to students' actual developmental needs rather than their relative age in their cohort.
         <br>
         <br>
-        This adjustment calculator provides a simple and direct method of adjusting a child's assessment score based on their relative age. The linear adjustment in this application is one of many possible methods for addressing this concern, but is preferred here because of its intuitive interpretation and ease of implementation. That said, other methods could be developed for relative age adjustment and may be preferrable in certain cases, but the the need to adjust scores in some fashion is clear.
+        This adjustment calculator provides a simple and direct method of adjusting a child's assessment score based on their relative age. The linear adjustment in this application is one of many possible methods for addressing this concern, but is preferred here because of its intuitive interpretation and ease of implementation. That said, other methods could be developed for relative age adjustment and may be preferrable in certain cases. Regardless, the the need to adjust scores in some fashion is clear.
         """)
 
     with ui.nav_panel("Methods"):
         ui.HTML("""
-        The function used here adjusts a test score to account for the relative age effect, which can impact the performance of younger students compared to their older peers within the same cohort. The method uses a linear adjustment with hard capping to ensure that the adjusted score remains within the valid range.
+        The function used here adjusts a child's assessment score to account for the relative age effect. The method uses a linear adjustment with hard capping to ensure that the adjusted score remains within the valid range.
         <br>
         <br>
         <b>Required Inputs:</b>
         <br>
-        <ol>
+        <ul>
             <li>Date of Assessment: The date when the test or assessment was conducted.</li>
-            <li>**child_test_score (float)**: The original score of the child on the test.</li>
-            <li>**max_test_score (float)**: The maximum possible score on the test.</li>
-            <li>**child_bday (date)**: The birthdate of the child whose score is being adjusted.</li>
-            <li>**oldest_in_cohort (date)**: The birthdate of the oldest student in the cohort.</li>
-        </ol>
+            <li>Birthday of Child: The birthdate of the child whose score is being adjusted.</li>
+            <li>Birthdate of the Oldest Child in Cohort: The birthdate of the oldest student in the cohort.</li>
+            <li>Child Assessment Score: The original score of the child on the assessment or test.</li>
+            <li>Maximum Possible Assessment Score: The maximum possible score on the assessment or test.</li>
+        </ul>
+        <b>Adjustment Method:</b>
         <br>
-        <b>Adjustments Made:</b>
-        1. **Calculate Time Differences**:
-        - `oldest_delta`: The number of days between the test date and the birthdate of the oldest student.
-        - `child_delta`: The number of days between the test date and the birthdate of the child whose score is being adjusted.
-        2. **Compute Inflation Factor**:
-        - `inflation_factor`: The ratio of `oldest_delta.days` to `child_delta.days`, representing the relative age difference.
-        3. **Adjust Score**:
-        - Multiply the child's original test score by the `inflation_factor` to get the adjusted score.
-        - Round the adjusted score to the nearest integer.
-        4. **Cap Score**:
-        - If the adjusted score exceeds the maximum possible score (`max_test_score`), cap it at `max_test_score`.
-
-        ### Expected Output:
-        - **float**: The adjusted test score, which is rounded and capped within the valid score range.
-
-        ### Edge Cases and Inaccuracies:
-        1. **Division by Zero**: If `child_delta.days` is zero (i.e., the test date is the same as the child's birthday), this will cause a division by zero error.
-        2. **Negative Scores**: If the adjusted score calculation results in a negative value, the function does not handle this explicitly.
-        3. **Over-Adjustment**: The linear adjustment may not accurately reflect the true impact of relative age, particularly in cases where the age difference is large.
-        4. **Rounding**: Rounding to the nearest integer can introduce minor inaccuracies, especially for scores that are close to the rounding threshold.
-
-        By considering these edge cases and potential inaccuracies, users can better understand the limitations and appropriate use of the `relative_age_adjustment_linear` function.
+        <ol>
+            <li>Calculate Time Differences: Calculate the number of days between the test date and the birthdate of the oldest student, and the number of days between the test date and the birthdate of the child whose score is being adjusted.
+            <li>Compute Inflation Factor: The inflation factor is the ratio of age (in days) of oldest child in the cohort to the age (in days) of the focal child.
+            <li>Adjust Score: Multiply the child's original test score by the Inflation Factor to get the adjusted score, then round the adjusted score to the nearest integer.</li>
+            <li>Cap Score: If the adjusted score exceeds the maximum possible score, set the adjusted score to maximum possible score.</li>
+        </ol>
+        <b>Expected Output:</b>
+        <br>
+        <ul> 
+            <li>Adjusted score: The adjusted test score, which is rounded and capped within the valid score range.</li>
+        </ul>
         """)
 
     with ui.nav_panel("Results"):
@@ -197,3 +185,17 @@ with ui.navset_pill(id="tab"):
                     legend_position='right')
             )
             return plot
+    with ui.nav_panel("References"):
+        ui.HTML("""
+        <b>References:</b>
+        <br>
+        <ul>
+            <li>Delorme, N., & Champely, S. (2015). Relative Age Effect and chi-squared statistics. International Review for the Sociology of Sport, 50(6), 740–746. https://doi.org/10.1177/1012690213493104</li>
+            <li>Holland, J., & Sayal, K. (2019). Relative age and ADHD symptoms, diagnosis and medication: A systematic review. European Child & Adolescent Psychiatry, 28(11), 1417–1429. https://doi.org/10.1007/s00787-018-1229-6</li>
+            <li>Musch, J., & Grondin, S. (2001). Unequal Competition as an Impediment to Personal Development: A Review of the Relative Age Effect in Sport. Developmental Review, 21(2), 147–167. https://doi.org/10.1006/drev.2000.0516</li>
+            <li>Navarro, J., García-Rubio, J., & Olivares, P. R. (2015). The Relative Age Effect and Its Influence on Academic Performance. PLOS ONE, 10(10), e0141895. https://doi.org/10.1371/journal.pone.0141895</li>
+            <li>Smith, K. L., Weir, P. L., Till, K., Romann, M., & Cobley, S. (2018). Relative Age Effects Across and Within Female Sport Contexts: A Systematic Review and Meta-Analysis. Sports Medicine, 48(6), 1451–1478. https://doi.org/10.1007/s40279-018-0890-8</li>
+        </ul>
+        """)
+
+
